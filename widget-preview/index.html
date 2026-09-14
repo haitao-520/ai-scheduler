@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小部件字体 / 背景预览</title>
+<style>
+  @font-face { font-family: 'KuaiLe'; src: url('zcool_kuaile.ttf') format('truetype'); }
+  @font-face { font-family: 'HuangYou'; src: url('qingke.ttf') format('truetype'); }
+  @font-face { font-family: 'MaShanZheng'; src: url('mashanzheng.ttf') format('truetype'); }
+  @font-face { font-family: 'LongCang'; src: url('longcang.ttf') format('truetype'); }
+
+  :root { --wfont: 'HuangYou'; }
+  body {
+    margin: 0; padding: 28px; background: #2b2b30; color: #eee;
+    font-family: var(--wfont), sans-serif;
+  }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  h2 { font-size: 14px; margin: 26px 0 10px; color: #bbb; font-weight: normal; }
+  .note { font-size: 12px; color: #888; }
+  select { font-size: 16px; padding: 6px 10px; border-radius: 8px; margin: 10px 0 4px; }
+  .row { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .cap { font-size: 12px; color: #999; }
+
+  .w1 {
+    width: 220px; height: 220px; box-sizing: border-box;
+    background-image: url('widget_fur_a.jpg'); background-size: 100% 100%;
+    padding: 12px; display: flex; flex-direction: column;
+  }
+  .w2 {
+    width: 300px; height: 150px; box-sizing: border-box;
+    background-image: url('widget_fur_b.jpg'); background-size: 100% 100%;
+    padding: 10px 12px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .month { text-align: center; font-size: 17px; font-weight: bold; color: #000; }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 4px; }
+  .week span { text-align: center; font-size: 13px; font-weight: bold; color: #333; }
+  .week span.we { color: #B71C1C; }
+  .days { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; margin-top: 2px; }
+  .cell { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05; }
+  .cell b { font-size: 15px; color: #111; }
+  .cell i { font-size: 11px; font-style: normal; font-weight: bold; color: #B71C1C; }
+  .cell i.rest { color: #555; }
+  .w2 div { font-size: 19px; font-weight: bold; padding-left: 8px; }
+  .w2 .t1 { color: #1F5FBF; }
+  .w2 .t2 { color: #D35400; }
+
+  .samples { display: grid; gap: 10px; }
+  .sample { background: #fff; border-radius: 10px; padding: 12px 16px; }
+  .sample .name { font-size: 12px; color: #888; font-family: sans-serif; }
+  .sample .line1 { font-size: 26px; color: #111; }
+  .sample .line2 { font-size: 16px; color: #333; }
+</style>
+</head>
+<body>
+  <h1>小部件字体 / 背景预览</h1>
+  <div class="note">选择字体，下面两个小部件会实时切换。毛绒背景来自你给的参考图。</div>
+  <select id="fontSel">
+    <option value="'HuangYou'">站酷庆科黄油体</option>
+    <option value="'KuaiLe'">站酷快乐体（当前）</option>
+    <option value="'MaShanZheng'">马善政毛笔字</option>
+    <option value="'LongCang'">龙藏手写体</option>
+    <option value="sans-serif">系统默认</option>
+  </select>
+
+  <h2>实际效果</h2>
+  <div class="row">
+    <div class="frame">
+      <div class="w1">
+        <div class="month">2026年9月</div>
+        <div class="week">
+          <span class="we">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="we">六</span>
+        </div>
+        <div class="days">
+          <div class="cell"><b>30</b><i></i></div><div class="cell"><b>31</b><i></i></div>
+          <div class="cell"><b>1</b><i>班</i></div><div class="cell"><b>2</b><i>班</i></div>
+          <div class="cell"><b>3</b><i class="rest">休</i></div><div class="cell"><b>4</b><i>班</i></div>
+          <div class="cell"><b>5</b><i class="rest">休</i></div><div class="cell"><b>6</b><i>班</i></div>
+          <div class="cell"><b>7</b><i>班</i></div><div class="cell"><b>8</b><i class="rest">休</i></div>
+          <div class="cell"><b>9</b><i>班</i></div><div class="cell"><b>10</b><i>班</i></div>
+          <div class="cell"><b>11</b><i>班</i></div><div class="cell"><b>12</b><i class="rest">休</i></div>
+          <div class="cell"><b>13</b><i>班</i></div><div class="cell"><b>14</b><i>班</i></div>
+          <div class="cell"><b>15</b><i class="rest">休</i></div><div class="cell"><b>16</b><i>班</i></div>
+          <div class="cell"><b>17</b><i>班</i></div><div class="cell"><b>18</b><i>班</i></div>
+          <div class="cell"><b>19</b><i class="rest">休</i></div><div class="cell"><b>20</b><i>班</i></div>
+        </div>
+      </div>
+      <div class="cap">排班日历 2×2</div>
+    </div>
+
+    <div class="frame">
+      <div class="w2">
+        <div class="t1">今天 08:00-17:00</div>
+        <div class="t2">明天 12:00-21:00</div>
+      </div>
+      <div class="cap">今明班次 2×1</div>
+    </div>
+  </div>
+
+  <h2>字体对比</h2>
+  <div class="samples">
+    <div class="sample"><div class="name">站酷庆科黄油体</div><div class="line1" style="font-family:'HuangYou'">今天 08:00-17:00 排班日历 班 休</div><div class="line2" style="font-family:'HuangYou'">日 一 二 三 四 五 六</div></div>
+    <div class="sample"><div class="name">站酷快乐体（当前）</div><div class="line1" style="font-family:'KuaiLe'">今天 08:00-17:00 排班日历 班 休</div><div class="line2" style="font-family:'KuaiLe'">日 一 二 三 四 五 六</div></div>
+    <div class="sample"><div class="name">马善政毛笔字</div><div class="line1" style="font-family:'MaShanZheng'">今天 08:00-17:00 排班日历 班 休</div><div class="line2" style="font-family:'MaShanZheng'">日 一 二 三 四 五 六</div></div>
+    <div class="sample"><div class="name">龙藏手写体</div><div class="line1" style="font-family:'LongCang'">今天 08:00-17:00 排班日历 班 休</div><div class="line2" style="font-family:'LongCang'">日 一 二 三 四 五 六</div></div>
+  </div>
+
+  <script>
+    var sel = document.getElementById('fontSel');
+    sel.addEventListener('change', function () {
+      document.documentElement.style.setProperty('--wfont', sel.value);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4f46e5" />
+    <title>下载 智能排班</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei',
+          sans-serif;
+        background: linear-gradient(160deg, #eef0ff 0%, #f7f7fb 55%, #eafaf6 100%);
+        color: #1f2333;
+      }
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 22px;
+        padding: 30px 26px 26px;
+        box-shadow: 0 18px 50px rgba(31, 35, 51, 0.12);
+        text-align: center;
+      }
+      .icon {
+        width: 84px;
+        height: 84px;
+        border-radius: 22px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(140deg, #6366f1, #4f46e5);
+        box-shadow: 0 10px 24px rgba(79, 70, 229, 0.35);
+      }
+      .icon svg {
+        width: 46px;
+        height: 46px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      .subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0 0 22px;
+      }
+      .meta {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+      }
+      .tag {
+        background: #f1f2f8;
+        color: #4b5563;
+        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 999px;
+      }
+      .download-btn {
+        display: block;
+        width: 100%;
+        padding: 16px;
+        border-radius: 14px;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 17px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+      }
+      .download-btn:active {
+        background: #4338ca;
+      }
+      .size {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .steps {
+        text-align: left;
+        margin: 26px 0 0;
+        padding: 18px 18px 6px;
+        background: #fafafe;
+        border: 1px solid #eef0f6;
+        border-radius: 14px;
+      }
+      .steps h2 {
+        font-size: 14px;
+        margin: 0 0 10px;
+        color: #374151;
+      }
+      .steps ol {
+        margin: 0;
+        padding-left: 18px;
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      .note {
+        margin-top: 16px;
+        font-size: 12px;
+        color: #9ca3af;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="3" />
+          <path d="M3 9h18M8 2v4M16 2v4" />
+          <path d="M8 14h2M14 14h2M8 18h2" />
+        </svg>
+      </div>
+      <h1>智能排班</h1>
+      <p class="subtitle">日历排班 + AI 助手，说出班次自动排好</p>
+
+      <div class="meta">
+        <span class="tag">版本 0.1.0</span>
+        <span class="tag">Android 6.0+</span>
+        <span class="tag">调试版</span>
+      </div>
+
+      <a class="download-btn" href="/app-debug.apk" download="ai-scheduler.apk">下载安装包（APK）</a>
+      <div class="size">文件大小约 3.7 MB</div>
+
+      <div class="steps">
+        <h2>安装步骤</h2>
+        <ol>
+          <li>点击上方按钮下载 APK</li>
+          <li>在手机「设置 - 安全」中允许安装未知来源应用</li>
+          <li>打开下载好的 APK 完成安装</li>
+          <li>打开 App，在「设置」中填入 DeepSeek API Key</li>
+        </ol>
+      </div>
+
+      <p class="note">
+        首次安装若提示「未知来源」，选择允许即可。API Key 仅保存在本机，不会上传。
+      </p>
+    </div>
+  </body>
+</html>
