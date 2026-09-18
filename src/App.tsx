@@ -60,38 +60,50 @@ export default function App() {
 
   const overlayStack = useRef<string[]>([])
 
-  const openOverlay = useCallback((key: string) => {
+  const applyClose = useCallback((key: string) => {
+    if (key === 'chat') setChatOpen(false)
+    else if (key === 'settings') setSettingsOpen(false)
+    else if (key === 'day') setSelectedDay(null)
+  }, [])
+
+  const openOverlay = useCallback((key: 'chat' | 'settings') => {
     overlayStack.current.push(key)
     window.history.pushState({ overlay: key }, '')
     if (key === 'chat') setChatOpen(true)
-    else if (key === 'settings') setSettingsOpen(true)
+    else setSettingsOpen(true)
   }, [])
 
-  const closeOverlay = useCallback((key: string) => {
-    const idx = overlayStack.current.lastIndexOf(key)
-    if (idx < 0) {
-      if (key === 'chat') setChatOpen(false)
-      else if (key === 'settings') setSettingsOpen(false)
-      return
-    }
-    if (idx === overlayStack.current.length - 1) {
-      window.history.back()
-      return
-    }
-    overlayStack.current.splice(idx, 1)
-    if (key === 'chat') setChatOpen(false)
-    else if (key === 'settings') setSettingsOpen(false)
+  const openDay = useCallback((date: Date) => {
+    overlayStack.current.push('day')
+    window.history.pushState({ overlay: 'day' }, '')
+    setSelectedDay(date)
   }, [])
+
+  const closeOverlay = useCallback(
+    (key: string) => {
+      const idx = overlayStack.current.lastIndexOf(key)
+      if (idx < 0) {
+        applyClose(key)
+        return
+      }
+      if (idx === overlayStack.current.length - 1) {
+        window.history.back()
+        return
+      }
+      overlayStack.current.splice(idx, 1)
+      applyClose(key)
+    },
+    [applyClose],
+  )
 
   useEffect(() => {
     const onPopState = () => {
       const key = overlayStack.current.pop()
-      if (key === 'chat') setChatOpen(false)
-      else if (key === 'settings') setSettingsOpen(false)
+      if (key) applyClose(key)
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
-  }, [])
+  }, [applyClose])
 
   const today = useMemo(() => new Date(), [])
 
@@ -222,7 +234,7 @@ export default function App() {
           today={today}
           onShiftMonth={shiftMonth}
           onGoToday={goToday}
-          onSelectDay={setSelectedDay}
+          onSelectDay={openDay}
         />
       </main>
 
@@ -234,7 +246,7 @@ export default function App() {
         <DayEditor
           date={selectedDay}
           shifts={selectedShifts}
-          onClose={() => setSelectedDay(null)}
+          onClose={() => closeOverlay('day')}
           onChange={(next) => updateDay(selectedDay, next)}
         />
       )}
