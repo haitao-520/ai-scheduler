@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { ReasoningEffort, Settings } from '../types'
 import { DEFAULT_SETTINGS } from '../types'
+import { saveImageUrlToGallery } from '../lib/gallery'
+import donateQr from '../assets/donate-qr.png'
 
 interface SettingsModalProps {
   settings: Settings
@@ -24,6 +27,47 @@ export function SettingsModal({ settings, onClose, onSave, onClearHistory }: Set
   const [saved, setSaved] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
   const [cleared, setCleared] = useState(false)
+  const [qrState, setQrState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const pressTimer = useRef<number | null>(null)
+  const pressStart = useRef<{ x: number; y: number } | null>(null)
+
+  const clearPress = () => {
+    if (pressTimer.current !== null) {
+      window.clearTimeout(pressTimer.current)
+      pressTimer.current = null
+    }
+    pressStart.current = null
+  }
+
+  const saveQr = async () => {
+    if (qrState === 'saving') return
+    setQrState('saving')
+    try {
+      await saveImageUrlToGallery(donateQr, 'donate-qr.png')
+      setQrState('saved')
+      window.setTimeout(() => setQrState('idle'), 3000)
+    } catch {
+      setQrState('error')
+      window.setTimeout(() => setQrState('idle'), 3000)
+    }
+  }
+
+  const startPress = (event: ReactPointerEvent<HTMLImageElement>) => {
+    clearPress()
+    pressStart.current = { x: event.clientX, y: event.clientY }
+    pressTimer.current = window.setTimeout(() => {
+      pressStart.current = null
+      void saveQr()
+    }, 500)
+  }
+
+  const movePress = (event: ReactPointerEvent<HTMLImageElement>) => {
+    const start = pressStart.current
+    if (!start) return
+    if (Math.abs(event.clientX - start.x) > 10 || Math.abs(event.clientY - start.y) > 10) {
+      clearPress()
+    }
+  }
 
   const handleSave = () => {
     onSave({
@@ -120,6 +164,34 @@ export function SettingsModal({ settings, onClose, onSave, onClearHistory }: Set
         <button className="primary-btn" onClick={handleSave}>
           {saved ? '已保存' : '保存'}
         </button>
+
+        <div className="donate">
+          <div className="donate-title">支持作者</div>
+          <p className="donate-hint">
+            截图或长按保存下方二维码，打开微信扫码对作者进行打赏。
+          </p>
+          <img
+            className="donate-qr"
+            src={donateQr}
+            alt="微信打赏二维码"
+            draggable={false}
+            onPointerDown={startPress}
+            onPointerMove={movePress}
+            onPointerUp={clearPress}
+            onPointerLeave={clearPress}
+            onPointerCancel={clearPress}
+            onContextMenu={(event) => event.preventDefault()}
+          />
+          <p className={`donate-status ${qrState}`}>
+            {qrState === 'saving'
+              ? '正在保存…'
+              : qrState === 'saved'
+                ? '已保存到相册，打开微信扫一扫即可'
+                : qrState === 'error'
+                  ? '保存失败，可截图后再扫码'
+                  : '长按二维码可保存到相册'}
+          </p>
+        </div>
       </div>
     </div>
   )

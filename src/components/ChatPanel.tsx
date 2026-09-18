@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import type { ChatMessage } from '../types'
+import type { ChatMessage, ChatPhase } from '../types'
 import { fileToCompressedDataUrl } from '../lib/image'
 
 interface ChatPanelProps {
   messages: ChatMessage[]
   loading: boolean
+  phase: ChatPhase
   error: string | null
   onSend: (text: string, images: string[]) => void
   onClose: () => void
@@ -18,6 +19,7 @@ const MAX_IMAGES = 4
 export function ChatPanel({
   messages,
   loading,
+  phase,
   error,
   onSend,
   onClose,
@@ -39,7 +41,7 @@ export function ChatPanel({
       behavior: didScrollRef.current ? 'smooth' : 'auto',
     })
     didScrollRef.current = true
-  }, [messages, loading])
+  }, [messages, loading, phase])
 
   const send = (value: string) => {
     const trimmed = value.trim()
@@ -118,12 +120,15 @@ export function ChatPanel({
           {messages.map((message, index) => (
             <div key={index} className={`bubble-row ${message.role}`}>
               <div className="bubble-stack">
-                {message.role === 'assistant' && message.reasoning && (
-                  <details className="reasoning">
-                    <summary>已深度思考</summary>
-                    <div className="reasoning-text">{message.reasoning}</div>
-                  </details>
-                )}
+                {message.role === 'assistant' &&
+                  (message.reasoning ? (
+                    <details className="reasoning">
+                      <summary>已完成</summary>
+                      <div className="reasoning-text">{message.reasoning}</div>
+                    </details>
+                  ) : (
+                    <div className="reasoning status">已完成</div>
+                  ))}
                 {message.role === 'user' && message.images && message.images.length > 0 && (
                   <div className="bubble-images">
                     {message.images.map((src, i) => (
@@ -135,10 +140,12 @@ export function ChatPanel({
               </div>
             </div>
           ))}
-          {loading && (
+          {(phase === 'thinking' || phase === 'scheduling') && (
             <div className="bubble-row assistant">
               <div className="bubble-stack">
-                <div className="bubble assistant typing">正在深度思考并排班…</div>
+                <div className="reasoning status active">
+                  {phase === 'thinking' ? '深度思考' : '排班中'}
+                </div>
               </div>
             </div>
           )}

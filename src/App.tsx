@@ -10,10 +10,14 @@ import { colorForShift } from './lib/colors'
 import { inferTimes } from './lib/shift'
 import { loadChat, loadSettings, loadShifts, saveChat, saveSettings, saveShifts } from './lib/storage'
 import { syncCalendarWidget } from './lib/widget'
-import type { AiResult, ChatMessage, DayShifts, ScheduleOp, Settings, Shift } from './types'
+import type { AiResult, ChatMessage, ChatPhase, DayShifts, ScheduleOp, Settings, Shift } from './types'
 
 function makeId(): string {
   return Math.random().toString(36).slice(2, 10)
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms))
 }
 
 function applyOps(shifts: DayShifts, ops: ScheduleOp[]): DayShifts {
@@ -56,6 +60,7 @@ export default function App() {
   const [chatOpen, setChatOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [phase, setPhase] = useState<ChatPhase>('idle')
   const [error, setError] = useState<string | null>(null)
 
   const overlayStack = useRef<string[]>([])
@@ -148,6 +153,7 @@ export default function App() {
       const history = [...messages, userMessage]
       setMessages(history)
       setLoading(true)
+      setPhase(settings.thinking ? 'thinking' : 'scheduling')
 
       try {
         const context = buildContextMessage(
@@ -165,6 +171,12 @@ export default function App() {
         ]
 
         const first = await chatCompletion(settings, apiMessages)
+
+        if (settings.thinking) {
+          setPhase('scheduling')
+          await delay(600)
+        }
+
         let answer = first
         let result: AiResult | null = null
 
@@ -213,6 +225,7 @@ export default function App() {
         setError(message)
       } finally {
         setLoading(false)
+        setPhase('idle')
       }
     },
     [messages, month, settings, shifts, today],
@@ -255,6 +268,7 @@ export default function App() {
         <ChatPanel
           messages={messages}
           loading={loading}
+          phase={phase}
           error={error}
           hasApiKey={settings.apiKey.trim().length > 0}
           onSend={handleSend}

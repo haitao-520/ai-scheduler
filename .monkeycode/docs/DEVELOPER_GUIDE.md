@@ -101,8 +101,8 @@ export PATH=$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH
 
 | 字段 | 当前值 |
 |------|--------|
-| `versionCode` | 22 |
-| `versionName` | 1.21 |
+| `versionCode` | 26 |
+| `versionName` | 1.25 |
 
 ## 开发工作流
 

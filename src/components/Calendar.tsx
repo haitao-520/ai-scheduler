@@ -301,6 +301,11 @@ export function Calendar({ month, shifts, today, onShiftMonth, onGoToday, onSele
           {renderPanel(nextMonth, nextDays)}
         </div>
       </div>
+
+      <div className="calendar-notice">
+        <p>本软件完全免费，如果在使用过程中遇到收费现象请及时止损。</p>
+        <p>如您觉得本软件好用，可以在右下角【AI 排班】→【设置】里滑到最下面支持并打赏作者。</p>
+      </div>
     </div>
   )
 }

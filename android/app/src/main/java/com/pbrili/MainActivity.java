@@ -16,6 +16,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(CalendarWidgetPlugin.class);
+        registerPlugin(GalleryPlugin.class);
         super.onCreate(savedInstanceState);
 
         // 让 WebView 内容延伸到状态栏下方，状态栏透明后与 APP 背景颜色一致

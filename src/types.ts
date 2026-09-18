@@ -27,6 +27,8 @@ export interface ChatMessage {
   images?: string[]
 }
 
+export type ChatPhase = 'idle' | 'thinking' | 'scheduling'
+
 export interface ScheduleOp {
   op: 'set' | 'clear'
   date: string

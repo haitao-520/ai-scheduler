@@ -97,7 +97,7 @@ cd android
 
 构建产物位于 `android/app/build/outputs/apk/debug/app-debug.apk`。
 
-发布约定：每次构建递增 `android/app/build.gradle` 中的 `versionCode`（加 1）与 `versionName`（加 0.01）。当前版本为 `1.21`（versionCode 22）。
+发布约定：每次构建递增 `android/app/build.gradle` 中的 `versionCode`（加 1）与 `versionName`（加 0.01）。当前版本为 `1.25`（versionCode 26）。
 
 ## 项目文档
 
