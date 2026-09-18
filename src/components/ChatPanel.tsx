@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { ChatMessage } from '../types'
 import { fileToCompressedDataUrl } from '../lib/image'
 
@@ -28,10 +28,17 @@ export function ChatPanel({
   const [images, setImages] = useState<string[]>([])
   const [pickError, setPickError] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const didScrollRef = useRef(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
+  useLayoutEffect(() => {
+    const list = listRef.current
+    if (!list) return
+    list.scrollTo({
+      top: list.scrollHeight,
+      behavior: didScrollRef.current ? 'smooth' : 'auto',
+    })
+    didScrollRef.current = true
   }, [messages, loading])
 
   const send = (value: string) => {
