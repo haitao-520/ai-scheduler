@@ -3,13 +3,15 @@ import { addMonths, format } from 'date-fns'
 import { Calendar } from './components/Calendar'
 import { ChatPanel } from './components/ChatPanel'
 import { DayEditor } from './components/DayEditor'
+import { Onboarding } from './components/Onboarding'
 import { SettingsModal } from './components/SettingsModal'
 import { buildContextMessage, chatCompletion, parseAiResult, SYSTEM_PROMPT, toApiMessage } from './lib/deepseek'
 import type { ApiMessage } from './lib/deepseek'
 import { colorForShift } from './lib/colors'
-import { inferTimes } from './lib/shift'
-import { loadChat, loadSettings, loadShifts, saveChat, saveSettings, saveShifts } from './lib/storage'
+import { inferTimes, sortShifts } from './lib/shift'
+import { loadChat, loadSettings, loadShifts, saveChat, saveSettings, saveShifts, hasOnboarded, saveOnboarded } from './lib/storage'
 import { syncCalendarWidget } from './lib/widget'
+import { requestShiftAlarmPermission, syncShiftAlarms } from './lib/notify'
 import type { AiResult, ChatMessage, ChatPhase, DayShifts, ScheduleOp, Settings, Shift } from './types'
 
 function makeId(): string {
@@ -26,17 +28,19 @@ function applyOps(shifts: DayShifts, ops: ScheduleOp[]): DayShifts {
     if (op.op === 'clear') {
       delete next[op.date]
     } else {
-      next[op.date] = (op.shifts ?? []).map((shift) => {
-        const hasTime = shift.start && shift.end
-        const times = hasTime ? { start: shift.start, end: shift.end } : inferTimes(shift.name)
-        return {
-          id: makeId(),
-          name: shift.name,
-          start: times.start,
-          end: times.end,
-          color: colorForShift({ name: shift.name, start: times.start, end: times.end }).fg,
-        }
-      })
+      next[op.date] = sortShifts(
+        (op.shifts ?? []).map((shift) => {
+          const hasTime = shift.start && shift.end
+          const times = hasTime ? { start: shift.start, end: shift.end } : inferTimes(shift.name)
+          return {
+            id: makeId(),
+            name: shift.name,
+            start: times.start,
+            end: times.end,
+            color: colorForShift({ name: shift.name, start: times.start, end: times.end }).fg,
+          }
+        }),
+      )
     }
   }
   return next
@@ -62,6 +66,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [phase, setPhase] = useState<ChatPhase>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasOnboarded())
 
   const overlayStack = useRef<string[]>([])
 
@@ -82,6 +87,13 @@ export default function App() {
     overlayStack.current.push('day')
     window.history.pushState({ overlay: 'day' }, '')
     setSelectedDay(date)
+  }, [])
+
+  const openChatForOnboarding = useCallback(() => openOverlay('chat'), [openOverlay])
+
+  const finishOnboarding = useCallback(() => {
+    saveOnboarded()
+    setShowOnboarding(false)
   }, [])
 
   const closeOverlay = useCallback(
@@ -123,6 +135,13 @@ export default function App() {
 
   useEffect(() => saveShifts(shifts), [shifts])
   useEffect(() => syncCalendarWidget(shifts), [shifts])
+  useEffect(
+    () => syncShiftAlarms(shifts, settings.remindBeforeShift, settings.reminderMinutes),
+    [shifts, settings.remindBeforeShift, settings.reminderMinutes],
+  )
+  useEffect(() => {
+    if (settings.remindBeforeShift) requestShiftAlarmPermission()
+  }, [settings.remindBeforeShift])
   useEffect(() => saveSettings(settings), [settings])
   useEffect(() => saveChat(messages), [messages])
 
@@ -134,7 +153,7 @@ export default function App() {
         if (nextShifts.length === 0) {
           delete next[key]
         } else {
-          next[key] = nextShifts
+          next[key] = sortShifts(nextShifts)
         }
         return next
       })
@@ -236,7 +255,7 @@ export default function App() {
     setError(null)
   }, [])
 
-  const selectedShifts = selectedDay ? shifts[format(selectedDay, 'yyyy-MM-dd')] ?? [] : []
+  const selectedShifts = selectedDay ? sortShifts(shifts[format(selectedDay, 'yyyy-MM-dd')] ?? []) : []
 
   return (
     <div className="app">
@@ -285,6 +304,8 @@ export default function App() {
           onClearHistory={clearHistory}
         />
       )}
+
+      {showOnboarding && <Onboarding onFinish={finishOnboarding} onOpenChat={openChatForOnboarding} />}
     </div>
   )
 }

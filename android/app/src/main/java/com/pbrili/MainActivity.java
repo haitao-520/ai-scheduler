@@ -1,5 +1,9 @@
 package com.pbrili;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,10 +17,19 @@ import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+    // 解锁/亮屏时刷新小部件，保证「今明班次」强调的班次与当前时间一致
+    private final BroadcastReceiver widgetRefreshReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ShiftWidgetProvider.updateAll(context);
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(CalendarWidgetPlugin.class);
         registerPlugin(GalleryPlugin.class);
+        registerPlugin(ShiftAlarmPlugin.class);
         super.onCreate(savedInstanceState);
 
         // 让 WebView 内容延伸到状态栏下方，状态栏透明后与 APP 背景颜色一致
@@ -35,12 +48,27 @@ public class MainActivity extends BridgeActivity {
         }
 
         applyHighRefreshRate();
+
+        // 清理旧版本遗留的同名通知渠道，避免系统设置里出现重复的「上班提醒」
+        ShiftAlarmReceiver.cleanupLegacyChannels(this);
+
+        registerReceiver(widgetRefreshReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            unregisterReceiver(widgetRefreshReceiver);
+        } catch (Exception ignored) {
+        }
+        super.onDestroy();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         applyHighRefreshRate();
+        ShiftWidgetProvider.updateAll(this);
     }
 
     // 全局适配高刷新率：取当前分辨率下的最高档刷新率作为首选，最终由系统按「屏幕刷新率」设置决定

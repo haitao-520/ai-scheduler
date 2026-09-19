@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ws7_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_bg2"
+    android:padding="4dp"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/ws7_today_label"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:gravity="center_vertical|start"
+            android:paddingLeft="6dp"
+            android:textColor="#2C3E50"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="今天" />
+
+        <TextView
+            android:id="@+id/ws7_today_lines"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:autoSizeTextType="none"
+            android:fontFamily="@font/huangyou"
+            android:gravity="center_vertical|start"
+            android:paddingLeft="4dp"
+            android:lineSpacingMultiplier="1.1"
+            android:maxLines="2"
+            android:textColor="#2C3E50"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/ws7_tomorrow_label"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:gravity="center_vertical|start"
+            android:paddingLeft="6dp"
+            android:textColor="#E6A23C"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="明天" />
+
+        <TextView
+            android:id="@+id/ws7_tomorrow_lines"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:autoSizeTextType="none"
+            android:fontFamily="@font/huangyou"
+            android:gravity="center_vertical|start"
+            android:paddingLeft="4dp"
+            android:lineSpacingMultiplier="1.1"
+            android:maxLines="2"
+            android:textColor="#E6A23C"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

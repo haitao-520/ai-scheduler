@@ -30,7 +30,7 @@ POST {baseUrl}/chat/completions
 
 ```json
 {
-  "model": "deepseek-chat",
+  "model": "deepseek-flash",
   "messages": [
     { "role": "system", "content": "系统提示词" },
     { "role": "system", "content": "当前日期与该月已有排班" },
@@ -48,7 +48,7 @@ POST {baseUrl}/chat/completions
 
 ```json
 {
-  "model": "deepseek-chat",
+  "model": "deepseek-flash",
   "messages": [ "..." ],
   "stream": false,
   "response_format": { "type": "json_object" },
@@ -68,7 +68,7 @@ POST {baseUrl}/chat/completions
 }
 ```
 
-注意：图片识别需要选择支持视觉的模型（如 `deepseek-vl` 系列），默认 `deepseek-chat` 不支持。
+注意：图片识别需要选择支持视觉的模型 `deepseek-flash`；默认模型 `deepseek-flash` 支持图片，`deepseek-v4-pro` 不支持。
 
 **响应读取**
 

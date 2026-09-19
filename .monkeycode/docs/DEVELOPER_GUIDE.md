@@ -101,8 +101,8 @@ export PATH=$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH
 
 | 字段 | 当前值 |
 |------|--------|
-| `versionCode` | 26 |
-| `versionName` | 1.25 |
+| `versionCode` | 53 |
+| `versionName` | 1.52 |
 
 ## 开发工作流
 
@@ -254,7 +254,7 @@ Capacitor 默认不处理硬件返回键，按下会直接结束 Activity。`Mai
 
 ### 图片识别
 
-`deepseek-chat` 不支持图片输入。发送图片识别前，需在设置页把模型改为支持视觉的模型（如 `deepseek-vl` 系列），否则模型无法看到图片内容。
+`deepseek-flash` 支持图片输入，`deepseek-v4-pro` 不支持。发送图片识别前，请在设置页把模型选为 `deepseek-flash`，否则模型无法看到图片内容。
 
 ## 低风险起步区域
 

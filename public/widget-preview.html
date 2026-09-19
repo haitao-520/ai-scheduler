@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小部件2「今明班次」逻辑预览</title>
+<style>
+  @font-face {
+    font-family: "HuangYou";
+    src: url("./huangyou.ttf") format("truetype");
+    font-display: swap;
+  }
+  :root {
+    --zoom: 3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Microsoft YaHei", sans-serif;
+    color: #e8ecf1;
+    background: #0f1420;
+    background-image: linear-gradient(135deg, #1b2436 0%, #0d1119 55%, #1a2233 100%);
+    min-height: 100vh;
+    padding: 20px 16px 60px;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { font-size: 13px; color: #8b97ab; margin-bottom: 18px; line-height: 1.6; }
+  .panel {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 14px; margin: 0 0 10px; color: #cfd8e6; font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label { font-size: 13px; color: #9fb0c6; }
+  input[type="time"], input[type="text"], input[type="number"] {
+    background: #121a28; border: 1px solid #2a3648;
+    color: #e8ecf1; border-radius: 6px; padding: 5px 7px; font-size: 13px;
+    font-family: inherit;
+  }
+  input[type="text"].name { width: 72px; }
+  input[type="time"] { width: 104px; }
+  input[type="range"] { flex: 1; min-width: 180px; }
+  button {
+    background: #22304a; color: #dce6f5; border: 1px solid #33456a;
+    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { background: #2b3d5d; }
+  button.preset { background: #1a2638; }
+  button.ghost { background: transparent; border-color: #3a4a63; }
+  .shift-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .shift-item { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .stage {
+    display: flex; justify-content: center; padding: 26px 8px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #2a3550, #384763 45%, #232c40);
+    overflow-x: auto;
+  }
+  .widget {
+    display: flex;
+    flex-direction: column;
+    min-width: calc(110px * var(--zoom));
+    background: rgba(255,255,255,0.25);
+    border: calc(2px * var(--zoom)) solid rgba(255,255,255,0.4);
+    border-radius: calc(20px * var(--zoom));
+    padding: calc(4px * var(--zoom));
+    font-family: "HuangYou", "PingFang SC", sans-serif;
+  }
+  .w-row { display: flex; align-items: center; flex: 1; }
+  .w-label {
+    width: calc(52px * var(--zoom));
+    flex: 0 0 auto;
+    padding-left: calc(6px * var(--zoom));
+    font-size: calc(18px * var(--zoom));
+    font-weight: bold;
+  }
+  .w-lines { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .w-line {
+    padding-left: calc(4px * var(--zoom));
+    font-weight: bold;
+    line-height: 1.15;
+    font-size: calc(18px * var(--zoom));
+    white-space: nowrap;
+  }
+  .w-line.hidden { font-size: calc(1px * var(--zoom)); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  th { color: #93a3ba; font-weight: 500; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 20px; font-size: 12px; }
+  .tag.big { background: rgba(64,158,255,0.2); color: #7fb8ff; }
+  .tag.small { background: rgba(144,147,153,0.2); color: #b6bcc5; }
+  .muted { color: #7f8ca0; font-size: 12px; }
+  .swatch { display:inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .note { font-size: 12.5px; color: #8b97ab; line-height: 1.7; }
+  code { background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>小部件2「今明班次」字号逻辑预览</h1>
+  <div class="sub">
+    小部件2「今明班次」：所有班次行使用<b>同一字号 18</b>，不再按班次状态强调；
+    颜色逻辑保持不变（按时间段/名称取色，「今天」标签取当前班次颜色）。改动时间或班次即可实时查看。
+  </div>
+
+  <div class="panel">
+    <h2>1. 当前时间与缩放</h2>
+    <div class="row">
+      <label>当前时间</label>
+      <input id="nowTime" type="time" value="17:46" />
+      <input id="nowRange" type="range" min="0" max="1439" value="1066" />
+      <span id="nowLabel" class="muted">17:46 → 第 1066 分钟</span>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label>缩放</label>
+      <button data-zoom="1">1x 实际大小</button>
+      <button data-zoom="2">2x</button>
+      <button data-zoom="3">3x</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2. 今天班次</h2>
+    <div id="todayList" class="shift-list"></div>
+    <button id="addToday" class="ghost">+ 添加今天班次</button>
+  </div>
+
+  <div class="panel">
+    <h2>3. 明天班次</h2>
+    <div id="tomorrowList" class="shift-list"></div>
+    <button id="addTomorrow" class="ghost">+ 添加明天班次</button>
+  </div>
+
+  <div class="panel">
+    <h2>4. 快速场景</h2>
+    <div class="row">
+      <button class="preset" data-preset="twoDone">今天两班都结束了</button>
+      <button class="preset" data-preset="oneDone">今天早班结束、晚班进行中</button>
+      <button class="preset" data-preset="night">今天一个跨夜夜班（未开始）</button>
+      <button class="preset" data-preset="emptyToday">今天休息，明天有早班</button>
+      <button class="preset" data-preset="threeDays">今天三班（只看前两班）</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>5. 小部件效果</h2>
+    <div class="stage">
+      <div class="widget" id="widget"></div>
+    </div>
+    <div class="note" style="margin-top:10px">
+      布局：<code>widget_shifts_v3.xml</code>；标签列固定 52dp，所有文字统一 18sp，
+      字体「站酷庆科黄油体」，背景 <code>#40FFFFFF</code> + 边框 <code>#66FFFFFF</code> + 圆角 20dp。
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>6. 判断明细</h2>
+    <table>
+      <thead>
+        <tr><th>行</th><th>文本</th><th>开始-结束</th><th>字号</th></tr>
+      </thead>
+      <tbody id="detail"></tbody>
+    </table>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var DAY_MINUTES = 24 * 60;
+  var PERIOD_RANGES = [
+    [8 * 60, 12 * 60 + 40],
+    [12 * 60 + 40, 17 * 60 + 20],
+    [17 * 60 + 20, 22 * 60],
+    [22 * 60, 8 * 60]
+  ];
+  var PERIOD_NAMES = ["早", "中", "晚", "夜"];
+
+  var COLORS = {
+    WORK: "0xFF409EFF",
+    REST: "0xFF909399",
+    MORNING: "0xFFE6A23C",
+    NOON: "0xFF1ABC9C",
+    EVENING: "0xFF8E44AD",
+    NIGHT: "0xFF2C3E50",
+    EMPTY: "0xFF6B7280"
+  };
+  var PALETTE = [COLORS.WORK, COLORS.MORNING, COLORS.NOON, COLORS.EVENING, COLORS.NIGHT, COLORS.REST];
+
+  function argbToCss(argb) {
+    var hex = argb.replace(/^0xFF/i, "");
+    return "#" + hex;
+  }
+  function argbAlpha(argb) {
+    return parseInt(argb.slice(2, 4), 16) / 255;
+  }
+
+  function minutes(value) {
+    if (!value) return -1;
+    var parts = String(value).split(":");
+    if (parts.length !== 2) return -1;
+    var hour = parseInt(parts[0].trim(), 10);
+    var minute = parseInt(parts[1].trim(), 10);
+    if (isNaN(hour) || isNaN(minute)) return -1;
+    if (hour > 23 || minute > 59) return -1;
+    return hour * 60 + minute;
+  }
+
+  function toSegments(start, end) {
+    if (start < end) return [[start, end]];
+    if (start > end) return [[start, DAY_MINUTES], [0, end]];
+    return [[0, DAY_MINUTES]];
+  }
+  function overlap(a, b) {
+    return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0]));
+  }
+
+  function periodForTime(start, end) {
+    var from = minutes(start);
+    if (from < 0) return null;
+    var to = (!end) ? -1 : minutes(end);
+    var shiftSegments = (to < 0 || to === from) ? [] : toSegments(from, to);
+
+    if (shiftSegments.length === 0) {
+      for (var i = 0; i < PERIOD_RANGES.length; i++) {
+        var segs = toSegments(PERIOD_RANGES[i][0], PERIOD_RANGES[i][1]);
+        for (var s = 0; s < segs.length; s++) {
+          if (overlap(segs[s], [from, from + 1]) > 0) return PERIOD_NAMES[i];
+        }
+      }
+      return "夜";
+    }
+
+    var best = -1;
+    var bestName = "夜";
+    for (var p = 0; p < PERIOD_RANGES.length; p++) {
+      var total = 0;
+      var rangeSegments = toSegments(PERIOD_RANGES[p][0], PERIOD_RANGES[p][1]);
+      for (var a = 0; a < shiftSegments.length; a++) {
+        for (var b = 0; b < rangeSegments.length; b++) {
+          total += overlap(shiftSegments[a], rangeSegments[b]);
+        }
+      }
+      if (total > best) { best = total; bestName = PERIOD_NAMES[p]; }
+    }
+    return bestName;
+  }
+
+  function colorForName(name) {
+    var value = name == null ? "" : name;
+    if (value === "上班" || value === "白班") return COLORS.WORK;
+    if (value === "休息") return COLORS.REST;
+    if (value === "早班") return COLORS.MORNING;
+    if (value === "中班") return COLORS.NOON;
+    if (value === "晚班") return COLORS.EVENING;
+    if (value === "夜班") return COLORS.NIGHT;
+    var hash = 0;
+    for (var i = 0; i < value.length; i++) {
+      hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    var index = (hash >>> 0) % PALETTE.length;
+    return PALETTE[index];
+  }
+
+  function colorForShift(name, start, end) {
+    if (start) {
+      var period = periodForTime(start, end);
+      if (period) {
+        if (period === "早") return COLORS.MORNING;
+        if (period === "中") return COLORS.NOON;
+        if (period === "晚") return COLORS.EVENING;
+        return COLORS.NIGHT;
+      }
+    }
+    return colorForName(name);
+  }
+
+  function describeDay(shifts) {
+    return (shifts || []).map(function (shift) {
+      var name = shift.name || "班次";
+      var start = shift.start || "";
+      var end = shift.end || "";
+      var text = (start && end) ? start + "-" + end : name;
+      return {
+        text: text,
+        color: colorForShift(name, start, end),
+        start: minutes(start),
+        end: minutes(end)
+      };
+    });
+  }
+
+  function isEnded(line, now) {
+    if (line.start < 0 || line.end < 0) return false;
+    if (line.end > line.start) return now >= line.end;
+    return false;
+  }
+
+  function activeIndex(lines, isToday, now) {
+    if (lines.length === 0) return -1;
+    if (!isToday) return 0;
+    for (var i = 0; i < lines.length; i++) {
+      if (!isEnded(lines[i], now)) return i;
+    }
+    return -1;
+  }
+
+  function labelColor(lines, index) {
+    if (lines.length === 0) return COLORS.EMPTY;
+    if (index < 0 || index >= lines.length) return lines[lines.length - 1].color;
+    return lines[index].color;
+  }
+
+  // ---------------- state ----------------
+  var state = {
+    now: 17 * 60 + 46,
+    today: [
+      { name: "早班", start: "08:00", end: "16:00" },
+      { name: "晚班", start: "16:00", end: "22:00" }
+    ],
+    tomorrow: [
+      { name: "早班", start: "08:00", end: "16:00" }
+    ]
+  };
+
+  var PRESETS = {
+    twoDone: {
+      now: 23 * 60,
+      today: [{ name: "早班", start: "08:00", end: "16:00" }, { name: "晚班", start: "16:00", end: "22:00" }],
+      tomorrow: [{ name: "早班", start: "08:00", end: "16:00" }]
+    },
+    oneDone: {
+      now: 17 * 60 + 46,
+      today: [{ name: "早班", start: "08:00", end: "16:00" }, { name: "晚班", start: "16:00", end: "22:00" }],
+      tomorrow: [{ name: "早班", start: "08:00", end: "16:00" }]
+    },
+    night: {
+      now: 20 * 60,
+      today: [{ name: "夜班", start: "22:00", end: "06:00" }],
+      tomorrow: [{ name: "中班", start: "12:40", end: "17:20" }]
+    },
+    emptyToday: {
+      now: 9 * 60,
+      today: [{ name: "休息", start: "", end: "" }],
+      tomorrow: [{ name: "早班", start: "08:00", end: "16:00" }]
+    },
+    threeDays: {
+      now: 13 * 60,
+      today: [
+        { name: "早班", start: "06:00", end: "10:00" },
+        { name: "中班", start: "10:00", end: "14:00" },
+        { name: "晚班", start: "14:00", end: "18:00" }
+      ],
+      tomorrow: [{ name: "早班", start: "08:00", end: "16:00" }]
+    }
+  };
+
+  // ---------------- rendering ----------------
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function renderShiftList(container, dayKey) {
+    container.innerHTML = "";
+    state[dayKey].forEach(function (shift, idx) {
+      var item = el("div", "shift-item");
+      var name = el("input", "name");
+      name.type = "text";
+      name.value = shift.name;
+      name.placeholder = "名称";
+      name.oninput = function () { shift.name = name.value; update(); };
+
+      var start = el("input");
+      start.type = "time";
+      start.value = shift.start;
+      start.oninput = function () { shift.start = start.value; update(); };
+
+      var dash = el("span", "muted", "至");
+      var end = el("input");
+      end.type = "time";
+      end.value = shift.end;
+      end.oninput = function () { shift.end = end.value; update(); };
+
+      var del = el("button", "ghost", "删除");
+      del.onclick = function () {
+        state[dayKey].splice(idx, 1);
+        renderShiftList(container, dayKey);
+        update();
+      };
+
+      item.appendChild(name);
+      item.appendChild(start);
+      item.appendChild(dash);
+      item.appendChild(end);
+      item.appendChild(del);
+      container.appendChild(item);
+    });
+  }
+
+  function buildLineEl(line) {
+    var node = el("div", "w-line", line.text);
+    node.style.color = argbToCss(line.color);
+    return node;
+  }
+
+  function renderWidget() {
+    var now = state.now;
+    var todayLines = describeDay(state.today);
+    var tomorrowLines = describeDay(state.tomorrow);
+    var todayActive = activeIndex(todayLines, true, now);
+
+    var widget = document.getElementById("widget");
+    widget.innerHTML = "";
+
+    widget.appendChild(buildRow(
+      "今天",
+      labelColor(todayLines, todayActive),
+      todayLines
+    ));
+    widget.appendChild(buildRow(
+      "明天",
+      tomorrowLines.length === 0 ? COLORS.EMPTY : tomorrowLines[0].color,
+      tomorrowLines
+    ));
+  }
+
+  function buildRow(labelText, labelColorArgb, lines) {
+    var row = el("div", "w-row");
+    var label = el("div", "w-label", labelText);
+    label.style.color = argbToCss(labelColorArgb);
+    row.appendChild(label);
+
+    var linesBox = el("div", "w-lines");
+
+    if (lines.length === 0) {
+      var empty = el("div", "w-line", "无排班");
+      empty.style.color = argbToCss(COLORS.EMPTY);
+      linesBox.appendChild(empty);
+      linesBox.appendChild(el("div", "w-line hidden", " "));
+    } else {
+      for (var i = 0; i < 2; i++) {
+        if (i < lines.length) {
+          linesBox.appendChild(buildLineEl(lines[i]));
+        } else {
+          linesBox.appendChild(el("div", "w-line hidden", " "));
+        }
+      }
+    }
+    row.appendChild(linesBox);
+    return row;
+  }
+
+  function renderDetail() {
+    var now = state.now;
+    var todayLines = describeDay(state.today);
+    var tomorrowLines = describeDay(state.tomorrow);
+    var todayActive = activeIndex(todayLines, true, now);
+
+    var body = document.getElementById("detail");
+    body.innerHTML = "";
+
+    function addRow(dayLabel, line) {
+      var tr = document.createElement("tr");
+      var td0 = el("td");
+      td0.appendChild(el("span", "swatch")).style.background = argbToCss(line.color);
+      td0.appendChild(document.createTextNode(dayLabel));
+      tr.appendChild(td0);
+      tr.appendChild(el("td", null, line.text));
+      tr.appendChild(el("td", null, line.text.indexOf("-") > 0 ? "" : "无时间"));
+      var td3 = el("td");
+      td3.appendChild(el("span", "tag", "18"));
+      tr.appendChild(td3);
+      body.appendChild(tr);
+    }
+
+    if (todayLines.length === 0) {
+      var tr = document.createElement("tr");
+      tr.appendChild(el("td", null, "今天"));
+      tr.appendChild(el("td", null, "无排班"));
+      tr.appendChild(el("td", null, "-"));
+      tr.appendChild(el("td", null, "18"));
+      body.appendChild(tr);
+    }
+    todayLines.forEach(function (line) { addRow("今天", line); });
+
+    if (tomorrowLines.length === 0) {
+      var tr2 = document.createElement("tr");
+      tr2.appendChild(el("td", null, "明天"));
+      tr2.appendChild(el("td", null, "无排班"));
+      tr2.appendChild(el("td", null, "-"));
+      tr2.appendChild(el("td", null, "18"));
+      body.appendChild(tr2);
+    }
+    tomorrowLines.forEach(function (line) { addRow("明天", line); });
+
+    void todayActive;
+  }
+
+  function update() {
+    renderWidget();
+    renderDetail();
+  }
+
+  // ---------------- events ----------------
+  var nowTime = document.getElementById("nowTime");
+  var nowRange = document.getElementById("nowRange");
+  var nowLabel = document.getElementById("nowLabel");
+
+  function syncNow(value, from) {
+    state.now = Math.max(0, Math.min(1439, value));
+    var hh = String(Math.floor(state.now / 60)).padStart(2, "0");
+    var mm = String(state.now % 60).padStart(2, "0");
+    nowLabel.textContent = hh + ":" + mm + " → 第 " + state.now + " 分钟";
+    if (from !== "time") nowTime.value = hh + ":" + mm;
+    if (from !== "range") nowRange.value = state.now;
+    update();
+  }
+
+  nowRange.oninput = function () { syncNow(parseInt(nowRange.value, 10), "range"); };
+  nowTime.oninput = function () {
+    var v = minutes(nowTime.value);
+    if (v >= 0) syncNow(v, "time");
+  };
+
+  document.getElementById("addToday").onclick = function () {
+    var list = state.today;
+    list.push({ name: "新班次", start: "09:00", end: "18:00" });
+    renderShiftList(document.getElementById("todayList"), "today");
+    update();
+  };
+  document.getElementById("addTomorrow").onclick = function () {
+    state.tomorrow.push({ name: "新班次", start: "09:00", end: "18:00" });
+    renderShiftList(document.getElementById("tomorrowList"), "tomorrow");
+    update();
+  };
+
+  document.querySelectorAll("button[data-zoom]").forEach(function (btn) {
+    btn.onclick = function () {
+      document.documentElement.style.setProperty("--zoom", btn.getAttribute("data-zoom"));
+    };
+  });
+
+  document.querySelectorAll("button[data-preset]").forEach(function (btn) {
+    btn.onclick = function () {
+      var preset = PRESETS[btn.getAttribute("data-preset")];
+      state.today = JSON.parse(JSON.stringify(preset.today));
+      state.tomorrow = JSON.parse(JSON.stringify(preset.tomorrow));
+      renderShiftList(document.getElementById("todayList"), "today");
+      renderShiftList(document.getElementById("tomorrowList"), "tomorrow");
+      syncNow(preset.now);
+    };
+  });
+
+  // ---------------- init ----------------
+  renderShiftList(document.getElementById("todayList"), "today");
+  renderShiftList(document.getElementById("tomorrowList"), "tomorrow");
+  syncNow(state.now);
+})();
+</script>
+</body>
+</html>

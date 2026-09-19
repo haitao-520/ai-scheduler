@@ -671,6 +671,22 @@ html.reveal-active .fab {
   color: #6b7280;
 }
 
+.ghost-btn {
+  width: 100%;
+  padding: 11px 16px;
+  margin: -6px 0 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4f46e5;
+  background: #eef0ff;
+  border: 1px solid #dfe3ff;
+  border-radius: 12px;
+}
+
+.ghost-btn:active {
+  background: #e3e7ff;
+}
+
 .field-hint {
   font-size: 12px;
   color: var(--muted);
@@ -1182,4 +1198,162 @@ html.reveal-active .fab {
 .donate-status.error {
   color: var(--danger);
 }
+
+/* ---------- Onboarding ---------- */
+.onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.onboarding-veil {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 26, 0.62);
+}
+
+.onboarding-hole {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow: 0 0 0 9999px rgba(15, 17, 26, 0.62);
+  outline: 2px solid rgba(139, 92, 246, 0.95);
+  outline-offset: 3px;
+  pointer-events: none;
+  animation: onboardingPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes onboardingPulse {
+  0%,
+  100% {
+    outline-color: rgba(139, 92, 246, 0.95);
+  }
+  50% {
+    outline-color: rgba(45, 212, 191, 0.95);
+  }
+}
+
+.onboarding-swipe {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  animation: onboardingSwipeMove 1.7s ease-in-out infinite;
+}
+
+.onboarding-swipe-finger {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #ffffff, #c7d2fe 70%, #a5b4fc);
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.25), 0 8px 18px rgba(15, 17, 26, 0.4);
+}
+
+.onboarding-swipe-chevron {
+  width: 15px;
+  height: 15px;
+  margin-top: -6px;
+  border-right: 3px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.95);
+  transform: rotate(45deg);
+  animation: onboardingChevron 1.7s ease-in-out infinite;
+}
+
+.onboarding-swipe-chevron:last-child {
+  animation-delay: 0.18s;
+}
+
+@keyframes onboardingSwipeMove {
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 52px);
+    opacity: 0;
+  }
+}
+
+@keyframes onboardingChevron {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+
+.onboarding-card {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(340px, 86vw);
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(15, 17, 26, 0.32);
+}
+
+.onboarding-step {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--brand-strong);
+}
+
+.onboarding-title {
+  margin: 6px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.onboarding-desc {
+  margin: 8px 0 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.onboarding-skip {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 9px 6px;
+}
+
+.onboarding-next {
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand-strong), var(--brand-2));
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.35);
+}
+
+.onboarding-next:active {
+  transform: scale(0.96);
+}
+
 

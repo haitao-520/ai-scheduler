@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import type { DayShifts } from '../types'
+import { sortShifts } from './shift'
 
 interface CalendarWidgetPlugin {
   save(options: { data: string }): Promise<void>
@@ -8,13 +9,17 @@ interface CalendarWidgetPlugin {
 
 const CalendarWidget = registerPlugin<CalendarWidgetPlugin>('CalendarWidget')
 
-export function syncCalendarWidget(shifts: DayShifts): void {
-  if (!Capacitor.isNativePlatform()) return
+export function buildShiftsPayload(shifts: DayShifts): string {
   const payload: Record<string, Array<{ name: string; start?: string; end?: string }>> = {}
   for (const [date, list] of Object.entries(shifts)) {
-    payload[date] = list.map((shift) => ({ name: shift.name, start: shift.start, end: shift.end }))
+    payload[date] = sortShifts(list).map((shift) => ({ name: shift.name, start: shift.start, end: shift.end }))
   }
-  CalendarWidget.save({ data: JSON.stringify({ shifts: payload }) }).catch(() => {
+  return JSON.stringify({ shifts: payload })
+}
+
+export function syncCalendarWidget(shifts: DayShifts): void {
+  if (!Capacitor.isNativePlatform()) return
+  CalendarWidget.save({ data: buildShiftsPayload(shifts) }).catch(() => {
     // 小部件同步失败不影响主流程
   })
 }

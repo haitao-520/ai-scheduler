@@ -26,3 +26,14 @@ export function autoShiftName(start?: string, end?: string): string {
 export function shiftRange(shift: Pick<Shift, 'name' | 'start' | 'end'>): string {
   return shift.start && shift.end ? `${shift.start}-${shift.end}` : shift.name
 }
+
+export function startMinutes(start?: string): number {
+  if (!start) return Number.POSITIVE_INFINITY
+  const [hours, minutes] = start.split(':').map((value) => Number(value))
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return Number.POSITIVE_INFINITY
+  return hours * 60 + minutes
+}
+
+export function sortShifts<T extends Pick<Shift, 'start'>>(list: T[]): T[] {
+  return [...list].sort((a, b) => startMinutes(a.start) - startMinutes(b.start))
+}

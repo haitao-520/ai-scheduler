@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { ReasoningEffort, Settings } from '../types'
 import { DEFAULT_SETTINGS } from '../types'
 import { saveImageUrlToGallery } from '../lib/gallery'
+import { testShiftAlarm } from '../lib/notify'
 import donateQr from '../assets/donate-qr.png'
 
 interface SettingsModalProps {
@@ -18,16 +19,30 @@ const EFFORTS: Array<{ value: ReasoningEffort; label: string }> = [
   { value: 'high', label: '高' },
 ]
 
+const MODEL_PRESETS = [
+  { value: 'deepseek-flash', label: 'Flash 快速' },
+  { value: 'deepseek-v4-pro', label: 'V4 Pro 旗舰' },
+]
+
+function normalizeMinutes(value: string): number {
+  const parsed = Math.round(Number(value))
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_SETTINGS.reminderMinutes
+  return Math.min(parsed, 720)
+}
+
 export function SettingsModal({ settings, onClose, onSave, onClearHistory }: SettingsModalProps) {
   const [apiKey, setApiKey] = useState(settings.apiKey)
   const [baseUrl, setBaseUrl] = useState(settings.baseUrl)
   const [model, setModel] = useState(settings.model)
   const [thinking, setThinking] = useState(settings.thinking)
   const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(settings.reasoningEffort)
+  const [remindBeforeShift, setRemindBeforeShift] = useState(settings.remindBeforeShift)
+  const [reminderMinutes, setReminderMinutes] = useState(String(settings.reminderMinutes))
   const [saved, setSaved] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
   const [cleared, setCleared] = useState(false)
   const [qrState, setQrState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [tested, setTested] = useState(false)
   const pressTimer = useRef<number | null>(null)
   const pressStart = useRef<{ x: number; y: number } | null>(null)
 
@@ -76,6 +91,8 @@ export function SettingsModal({ settings, onClose, onSave, onClearHistory }: Set
       model: model.trim() || DEFAULT_SETTINGS.model,
       thinking,
       reasoningEffort,
+      remindBeforeShift,
+      reminderMinutes: normalizeMinutes(reminderMinutes),
     })
     setSaved(true)
     setTimeout(onClose, 400)
@@ -117,8 +134,31 @@ export function SettingsModal({ settings, onClose, onSave, onClearHistory }: Set
 
         <label className="field">
           <span className="field-label">模型</span>
-          <input className="text-input" value={model} onChange={(event) => setModel(event.target.value)} />
+          <div className="segmented">
+            {MODEL_PRESETS.map((preset) => (
+              <button
+                type="button"
+                key={preset.value}
+                className={`segment ${model === preset.value ? 'active' : ''}`}
+                onClick={() => setModel(preset.value)}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <input
+            className="text-input"
+            value={model}
+            placeholder="deepseek-flash"
+            onChange={(event) => setModel(event.target.value)}
+          />
         </label>
+
+        <p className="field-hint">
+          API Key 仅保存在本机设备中，不会上传到任何服务器。请在 DeepSeek 开放平台
+          platform.deepseek.com 申请。发送图片识别请使用支持视觉的 deepseek-flash 模型，deepseek-v4-pro
+          不支持图片。
+        </p>
 
         <div className="switch-row">
           <div className="switch-copy">
@@ -152,10 +192,47 @@ export function SettingsModal({ settings, onClose, onSave, onClearHistory }: Set
           </div>
         )}
 
-        <p className="field-hint">
-          API Key 仅保存在本机设备中，不会上传到任何服务器。请在 DeepSeek 开放平台申请。
-          发送图片识别需要选择支持视觉的模型（如 deepseek-vl 系列）。
-        </p>
+        <div className="switch-row">
+          <div className="switch-copy">
+            <span className="field-label">上班提醒</span>
+            <span className="switch-desc">班次开始前发送通知栏提醒</span>
+          </div>
+          <button
+            className={`switch ${remindBeforeShift ? 'on' : ''}`}
+            onClick={() => setRemindBeforeShift((value) => !value)}
+            aria-pressed={remindBeforeShift}
+            aria-label="上班提醒"
+          >
+            <span className="switch-knob" />
+          </button>
+        </div>
+
+        {remindBeforeShift && (
+          <>
+            <label className="field">
+              <span className="field-label">提前多久提醒（分钟）</span>
+              <input
+                className="text-input"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={720}
+                value={reminderMinutes}
+                onChange={(event) => setReminderMinutes(event.target.value)}
+                onBlur={() => setReminderMinutes(String(normalizeMinutes(reminderMinutes)))}
+              />
+            </label>
+            <button
+              className="ghost-btn"
+              onClick={() => {
+                testShiftAlarm()
+                setTested(true)
+              }}
+            >
+              {tested ? '已发送测试通知' : '发送测试通知'}
+            </button>
+          </>
+        )}
 
         <button className={`danger-btn ${confirmClear ? 'confirming' : ''}`} onClick={handleClear}>
           {cleared ? '已清除对话' : confirmClear ? '再次点击确认清除' : '清除历史对话'}

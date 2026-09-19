@@ -13,6 +13,7 @@ import {
 } from 'date-fns'
 import type { DayShifts, Shift } from '../types'
 import { colorForShift } from '../lib/colors'
+import { sortShifts } from '../lib/shift'
 
 interface CalendarProps {
   month: Date
@@ -203,7 +204,7 @@ export function Calendar({ month, shifts, today, onShiftMonth, onGoToday, onSele
     <div className="month-panel">
       {days.map((day) => {
         const key = format(day, 'yyyy-MM-dd')
-        const dayShifts = shifts[key] ?? []
+        const dayShifts = sortShifts(shifts[key] ?? [])
         const inMonth = isSameMonth(day, panelMonth)
         const isToday = isSameDay(day, today)
         const workShift = dayShifts.find((shift) => shift.start && shift.end)

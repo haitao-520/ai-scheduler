@@ -18,6 +18,8 @@ export interface Settings {
   model: string
   thinking: boolean
   reasoningEffort: ReasoningEffort
+  remindBeforeShift: boolean
+  reminderMinutes: number
 }
 
 export interface ChatMessage {
@@ -43,7 +45,9 @@ export interface AiResult {
 export const DEFAULT_SETTINGS: Settings = {
   apiKey: '',
   baseUrl: 'https://api.deepseek.com',
-  model: 'deepseek-chat',
+  model: 'deepseek-flash',
   thinking: true,
   reasoningEffort: 'high',
+  remindBeforeShift: true,
+  reminderMinutes: 30,
 }

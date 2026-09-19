@@ -6,7 +6,7 @@
     android:targetCellHeight="1"
     android:updatePeriodMillis="1800000"
     android:description="@string/widget_shifts_description"
-    android:initialLayout="@layout/widget_shifts"
-    android:previewLayout="@layout/widget_shifts"
+    android:initialLayout="@layout/widget_shifts_v8"
+    android:previewLayout="@layout/widget_shifts_v8"
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen" />
