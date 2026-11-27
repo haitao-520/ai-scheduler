@@ -6,4 +6,5 @@
     <string name="custom_url_scheme">com.pbrili</string>
     <string name="widget_description">圆角排班日历</string>
     <string name="widget_shifts_description">今明班次</string>
+    <string name="widget_memo_description">备忘录清单</string>
 </resources>

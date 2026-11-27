@@ -74,6 +74,18 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_shifts_info" />
         </receiver>
+
+        <receiver
+            android:name=".MemoWidgetProvider"
+            android:label="备忘录"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_memo_info" />
+        </receiver>
     </application>
 
     <!-- Permissions -->

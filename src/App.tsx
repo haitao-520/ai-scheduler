@@ -3,16 +3,17 @@ import { addMonths, format } from 'date-fns'
 import { Calendar } from './components/Calendar'
 import { ChatPanel } from './components/ChatPanel'
 import { DayEditor } from './components/DayEditor'
+import { MemoPanel } from './components/MemoPanel'
 import { Onboarding } from './components/Onboarding'
 import { SettingsModal } from './components/SettingsModal'
 import { buildContextMessage, chatCompletion, parseAiResult, SYSTEM_PROMPT, toApiMessage } from './lib/deepseek'
 import type { ApiMessage } from './lib/deepseek'
 import { colorForShift } from './lib/colors'
 import { inferTimes, sortShifts } from './lib/shift'
-import { loadChat, loadSettings, loadShifts, saveChat, saveSettings, saveShifts, hasOnboarded, saveOnboarded } from './lib/storage'
-import { syncCalendarWidget } from './lib/widget'
+import { loadChat, loadMemos, loadSettings, loadShifts, saveChat, saveMemos, saveSettings, saveShifts, hasOnboarded, saveOnboarded } from './lib/storage'
+import { syncCalendarWidget, syncMemoWidget, consumeOpenTarget } from './lib/widget'
 import { requestShiftAlarmPermission, syncShiftAlarms } from './lib/notify'
-import type { AiResult, ChatMessage, ChatPhase, DayShifts, ScheduleOp, Settings, Shift } from './types'
+import type { AiResult, ChatMessage, ChatPhase, DayShifts, Memo, ScheduleOp, Settings, Shift } from './types'
 
 function makeId(): string {
   return Math.random().toString(36).slice(2, 10)
@@ -48,6 +49,7 @@ function applyOps(shifts: DayShifts, ops: ScheduleOp[]): DayShifts {
 
 export default function App() {
   const [shifts, setShifts] = useState<DayShifts>(() => loadShifts())
+  const [memos, setMemos] = useState<Memo[]>(() => loadMemos())
   const [settings, setSettings] = useState<Settings>(() => loadSettings())
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const stored = loadChat()
@@ -62,6 +64,7 @@ export default function App() {
   const [month, setMonth] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [chatOpen, setChatOpen] = useState(false)
+  const [memoOpen, setMemoOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [phase, setPhase] = useState<ChatPhase>('idle')
@@ -72,14 +75,17 @@ export default function App() {
 
   const applyClose = useCallback((key: string) => {
     if (key === 'chat') setChatOpen(false)
+    else if (key === 'memo') setMemoOpen(false)
     else if (key === 'settings') setSettingsOpen(false)
     else if (key === 'day') setSelectedDay(null)
   }, [])
 
-  const openOverlay = useCallback((key: 'chat' | 'settings') => {
+  const openOverlay = useCallback((key: 'chat' | 'memo' | 'settings') => {
+    if (overlayStack.current.includes(key)) return
     overlayStack.current.push(key)
     window.history.pushState({ overlay: key }, '')
     if (key === 'chat') setChatOpen(true)
+    else if (key === 'memo') setMemoOpen(true)
     else setSettingsOpen(true)
   }, [])
 
@@ -122,6 +128,24 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [applyClose])
 
+  // 小部件点击跳转：冷启动读持久化目标，热启动监听原生派发的事件
+  useEffect(() => {
+    let cancelled = false
+    void consumeOpenTarget().then((target) => {
+      if (!cancelled && target === 'memo') openOverlay('memo')
+    })
+
+    const onOpenTarget = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail
+      if (detail === 'memo') openOverlay('memo')
+    }
+    window.addEventListener('dsh:open-target', onOpenTarget)
+    return () => {
+      cancelled = true
+      window.removeEventListener('dsh:open-target', onOpenTarget)
+    }
+  }, [openOverlay])
+
   const today = useMemo(() => new Date(), [])
 
   const shiftMonth = useCallback((delta: number) => {
@@ -135,6 +159,8 @@ export default function App() {
 
   useEffect(() => saveShifts(shifts), [shifts])
   useEffect(() => syncCalendarWidget(shifts), [shifts])
+  useEffect(() => saveMemos(memos), [memos])
+  useEffect(() => syncMemoWidget(memos), [memos])
   useEffect(
     () => syncShiftAlarms(shifts, settings.remindBeforeShift, settings.reminderMinutes),
     [shifts, settings.remindBeforeShift, settings.reminderMinutes],
@@ -270,6 +296,10 @@ export default function App() {
         />
       </main>
 
+      <button className="fab fab-memo" onClick={() => openOverlay('memo')}>
+        备忘
+      </button>
+
       <button className="fab" onClick={() => openOverlay('chat')}>
         AI 排班
       </button>
@@ -281,6 +311,10 @@ export default function App() {
           onClose={() => closeOverlay('day')}
           onChange={(next) => updateDay(selectedDay, next)}
         />
+      )}
+
+      {memoOpen && (
+        <MemoPanel memos={memos} onChange={setMemos} onClose={() => closeOverlay('memo')} />
       )}
 
       {chatOpen && (

@@ -347,6 +347,31 @@ html.reveal-active .fab {
   pointer-events: none;
 }
 
+.fab-memo {
+  left: 18px;
+  right: auto;
+  animation: fabFloatMemo 3s ease-in-out infinite;
+}
+
+.fab-memo::before {
+  content: '✎';
+  font-size: 15px;
+}
+
+.fab-memo:active {
+  transform: scale(0.94);
+}
+
+@keyframes fabFloatMemo {
+  0%,
+  100% {
+    box-shadow: 0 12px 26px rgba(99, 102, 241, 0.45);
+  }
+  50% {
+    box-shadow: 0 12px 34px rgba(139, 92, 246, 0.6);
+  }
+}
+
 .fab::before {
   content: '✦';
   font-size: 15px;
@@ -431,6 +456,97 @@ html.reveal-active .fab {
   font-size: 14px;
   text-align: center;
   padding: 10px 0;
+}
+
+/* ---------- Memo panel ---------- */
+.memo-list {
+  max-height: 46vh;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.memo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.memo-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #c9cde0;
+  background: #fff;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.memo-check.checked {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+}
+
+.memo-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memo-text {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+  transition: all 0.15s ease;
+}
+
+.memo-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.memo-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.memo-widget-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.memo-widget-toggle input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--brand-strong);
+}
+
+.memo-edit-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
 }
 
 .shift-edit-list {

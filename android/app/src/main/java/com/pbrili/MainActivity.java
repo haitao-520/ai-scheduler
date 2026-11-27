@@ -17,6 +17,13 @@ import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+
+    /** 小部件点击时携带的额外标记：直接打开备忘录面板 */
+    public static final String EXTRA_OPEN_MEMO = "open_memo";
+    /** Web 层待消费的启动目标 */
+    public static final String PREFS_LAUNCH = "scheduler_launch";
+    public static final String KEY_TARGET = "target";
+
     // 解锁/亮屏时刷新小部件，保证「今明班次」强调的班次与当前时间一致
     private final BroadcastReceiver widgetRefreshReceiver = new BroadcastReceiver() {
         @Override
@@ -53,6 +60,49 @@ public class MainActivity extends BridgeActivity {
         ShiftAlarmReceiver.cleanupLegacyChannels(this);
 
         registerReceiver(widgetRefreshReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+
+        handleLaunchIntent(getIntent());
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleLaunchIntent(intent);
+    }
+
+    /** 处理来自小部件的跳转请求：写入待消费目标，并尝试实时通知 Web 层 */
+    private void handleLaunchIntent(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_OPEN_MEMO, false)) {
+            return;
+        }
+        // 消费掉标记，避免旋转屏幕或重建时重复触发
+        intent.removeExtra(EXTRA_OPEN_MEMO);
+
+        getSharedPreferences(PREFS_LAUNCH, MODE_PRIVATE)
+                .edit()
+                .putString(KEY_TARGET, "memo")
+                .apply();
+
+        dispatchOpenTarget("memo");
+    }
+
+    /** WebView 已就绪时派发事件；未就绪则由 Web 层启动后读取 SharedPreferences */
+    private void dispatchOpenTarget(String target) {
+        try {
+            if (getBridge() == null || getBridge().getWebView() == null) {
+                return;
+            }
+            final String js = "window.dispatchEvent(new CustomEvent('dsh:open-target',{detail:'"
+                    + target.replace("'", "") + "'}));";
+            getBridge().getWebView().post(() -> {
+                try {
+                    getBridge().getWebView().evaluateJavascript(js, null);
+                } catch (Exception ignored) {
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 
     @Override

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_bg"
+    android:padding="7dp">
+
+    <TextView
+        android:id="@+id/w_memo_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:fontFamily="@font/huangyou"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:text="备忘录" />
+
+    <LinearLayout
+        android:id="@+id/w_memo_row_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/w_memo_check_0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="🔴" />
+
+        <TextView
+            android:id="@+id/w_memo_text_0"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:gravity="center_vertical"
+            android:textColor="#222831"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingEnd="2dp"
+            android:fontFamily="@font/huangyou"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/w_memo_row_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/w_memo_check_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="🔴" />
+
+        <TextView
+            android:id="@+id/w_memo_text_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:gravity="center_vertical"
+            android:textColor="#222831"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingEnd="2dp"
+            android:fontFamily="@font/huangyou"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/w_memo_row_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/w_memo_check_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="🔴" />
+
+        <TextView
+            android:id="@+id/w_memo_text_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:gravity="center_vertical"
+            android:textColor="#222831"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingEnd="2dp"
+            android:fontFamily="@font/huangyou"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/w_memo_row_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/w_memo_check_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="🔴" />
+
+        <TextView
+            android:id="@+id/w_memo_text_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:gravity="center_vertical"
+            android:textColor="#222831"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingEnd="2dp"
+            android:fontFamily="@font/huangyou"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/w_memo_row_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/w_memo_check_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:fontFamily="@font/huangyou"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="🔴" />
+
+        <TextView
+            android:id="@+id/w_memo_text_4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:gravity="center_vertical"
+            android:textColor="#222831"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingEnd="2dp"
+            android:fontFamily="@font/huangyou"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -29,6 +29,14 @@ export interface ChatMessage {
   images?: string[]
 }
 
+export interface Memo {
+  id: string
+  text: string
+  createdAt: number
+  done: boolean
+  widget?: boolean
+}
+
 export type ChatPhase = 'idle' | 'thinking' | 'scheduling'
 
 export interface ScheduleOp {

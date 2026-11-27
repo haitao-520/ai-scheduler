@@ -1,4 +1,4 @@
-import type { ChatMessage, DayShifts, Settings } from '../types'
+import type { ChatMessage, DayShifts, Memo, Settings } from '../types'
 import { DEFAULT_SETTINGS } from '../types'
 import { sortShifts } from './shift'
 
@@ -6,6 +6,38 @@ const SHIFTS_KEY = 'scheduler.shifts.v1'
 const SETTINGS_KEY = 'scheduler.settings.v1'
 const CHAT_KEY = 'scheduler.chat.v1'
 const ONBOARD_KEY = 'scheduler.onboarded.v1'
+const MEMO_KEY = 'scheduler.memos.v1'
+
+export function loadMemos(): Memo[] {
+  try {
+    const raw = localStorage.getItem(MEMO_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as unknown[]
+    return parsed.filter(
+      (item): item is Memo =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof (item as Memo).id === 'string' &&
+        typeof (item as Memo).text === 'string',
+    ).map((item) => ({
+      id: item.id,
+      text: item.text,
+      createdAt: typeof item.createdAt === 'number' ? item.createdAt : Date.now(),
+      done: item.done === true,
+      widget: item.widget !== false,
+    }))
+  } catch {
+    return []
+  }
+}
+
+export function saveMemos(memos: Memo[]): void {
+  try {
+    localStorage.setItem(MEMO_KEY, JSON.stringify(memos))
+  } catch {
+    // 备忘录写入失败时不阻塞使用
+  }
+}
 
 // DeepSeek 已下线 deepseek-chat / deepseek-reasoner，旧存档自动迁移到新模型名
 const LEGACY_MODELS: Record<string, string> = {
